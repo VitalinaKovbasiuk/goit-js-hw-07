@@ -1,17 +1,5 @@
-import { galleryItems } from './gallery-items.js';
-// Change code below this line
 
-console.log(galleryItems);
-
-// 1. Створення і рендер розмітки на підставі масиву даних galleryItems і наданого шаблону елемента галереї.
-// 2. Реалізація делегування на div.gallery і отримання url великого зображення.
-// 3. Підключення скрипту і стилів бібліотеки модального вікна basicLightbox. 
-// Використовуй CDN сервіс jsdelivr і додай у проект посилання на мініфіковані (.min) файли бібліотеки.
-// 4. Відкриття модального вікна по кліку на елементі галереї. Для цього ознайомся з документацією і прикладами.
-// 5. Заміна значення атрибута src елемента <img> в модальному вікні перед відкриттям. 
-// Використовуй готову розмітку модального вікна із зображенням з прикладів бібліотеки basicLightbox.
-
-{/* <button class="image">img</button>
+/* <button class="image">img</button>
 <button class="iframe">iframe</button>
 <button class="video">video</button>
 <button class="html">html</button>
@@ -20,7 +8,7 @@ console.log(galleryItems);
 <button class="notClosable">not closable</button>
 <button class="modify">modify</button>
 <button class="classNames">classNames</button>
-<button class="stack">stack</button> */}
+<button class="stack">stack</button> */
 
 // document.querySelector('button.image').onclick = () => {
 // 	basicLightbox.create(`
@@ -116,21 +104,71 @@ console.log(galleryItems);
 
 // document.querySelector('button.stack').onclick = stack
 
+
+// 1. Створення і рендер розмітки на підставі масиву даних galleryItems і наданого шаблону елемента галереї.
+// 2. Реалізація делегування на div.gallery і отримання url великого зображення.
+// 3. Підключення скрипту і стилів бібліотеки модального вікна basicLightbox. 
+// Використовуй CDN сервіс jsdelivr і додай у проект посилання на мініфіковані (.min) файли бібліотеки.
+// 4. Відкриття модального вікна по кліку на елементі галереї. Для цього ознайомся з документацією і прикладами.
+// 5. Заміна значення атрибута src елемента <img> в модальному вікні перед відкриттям. 
+// Використовуй готову розмітку модального вікна із зображенням з прикладів бібліотеки basicLightbox.
+
+// Посилання на оригінальне зображення повинно зберігатися в data-атрибуті source на елементі <img>, 
+// і вказуватися в href посилання. Не додавай інші HTML теги або CSS класи, крім тих, що містяться в цьому шаблоні.
+
+// Зверни увагу на те, що зображення обгорнуте посиланням, 
+// отже по кліку за замовчуванням користувач буде перенаправлений на іншу сторінку. Заборони цю поведінку за замовчуванням.
+
+
+import { galleryItems } from './gallery-items.js';
+console.log(galleryItems);
+
 const galleryDiv = document.querySelector('.gallery');
-console.log(galleryDiv);
 
-Посилання на оригінальне зображення повинно зберігатися в data-атрибуті source на елементі <img>, 
-і вказуватися в href посилання. Не додавай інші HTML теги або CSS класи, крім тих, що містяться в цьому шаблоні.
-<div class="gallery__item">
-  <a class="gallery__link" href="large-image.jpg">
-    <img
-      class="gallery__image"
-      src="small-image.jpg"
-      data-source="large-image.jpg"
-      alt="Image description"
-    />
-  </a>
-</div>
+function createGalleryItems(items) {
+    return items
+    .map(
+        (item) => `<div class="gallery__item">
+    <a class="gallery__link" href="${item.original}">
+      <img
+        class="gallery__image"
+        src="${item.preview}"
+        data-source="${item.original}"
+        alt="${item.description}"
+      />
+    </a>
+  </div>`
+  )
+    .join('');
+}
 
-Зверни увагу на те, що зображення обгорнуте посиланням, 
-отже по кліку за замовчуванням користувач буде перенаправлений на іншу сторінку. Заборони цю поведінку за замовчуванням.
+const addGalleryItems = createGalleryItems(galleryItems);
+// galleryDiv.innerHTML = addGalleryItems;
+
+function blockStandartAction(event) {
+    event.preventDefault();
+  }
+
+galleryDiv.addEventListener('click', onImageClick);
+galleryDiv.insertAdjacentHTML("beforeend", addGalleryItems);
+
+function onImageClick(event) {
+  blockStandartAction(event);
+
+  const imageContainer = event.target.classList.contains("gallery__image");
+  if (!imageContainer) {
+    return;
+  }
+
+  const instance = basicLightbox.create(`
+    <img src="${event.target.dataset.source}" width="800" height="600">
+`);
+  instance.show();
+
+  galleryDiv.addEventListener("keydown", (event) => {
+    if (event.code === "Escape") {
+      instance.close();
+    }
+  });
+}
+
